@@ -1,8 +1,8 @@
 const fs = require('fs')
-const { AllowanceTransfer, SignatureTransfer } = require('./dist')
+const { AllowanceTransfer, SignatureTransfer } = require('./dist/cjs/src')
 
-const PERMIT2_ADDRESS = '0xf0ffb02791362602acf0edce574e74dd9bd3120e'
-const TOKEN_ADDRESS = '0xb9728f6DE23E1Beeb7Bab38cbf0e60C0A48136eC'
+const PERMIT2_ADDRESS = '0x220222d69e6D5C257F466B5f367A173e8cD9885f'
+const TOKEN_ADDRESS = '0x31B1843d2a0760044242F304c9FadC06A5EbD1e9'
 const SPENDER_ADDRESS = '0x0000000000000000000000000000000000000001'
 const EXPIRATION = '10000000000000'
 const AMOUNT = '1000000000000000000'

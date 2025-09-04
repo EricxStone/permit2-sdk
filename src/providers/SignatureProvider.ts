@@ -1,9 +1,7 @@
-import { BigNumber, BigNumberish } from '@ethersproject/bignumber'
-import { Provider } from '@ethersproject/providers'
-import { Contract } from '@ethersproject/contracts'
 import invariant from 'tiny-invariant'
 import Permit2Abi from '../../abis/Permit2.json'
 import { PermitTransferFrom, PermitBatchTransferFrom } from '../signatureTransfer'
+import { BigNumberish, Contract, Provider } from 'ethers'
 
 export interface NonceValidationResult {
   isUsed: boolean
@@ -38,7 +36,7 @@ export class SignatureProvider {
    */
   async isExpired(deadline: BigNumberish): Promise<boolean> {
     const currentTimestamp = await this.getCurrentTimestamp()
-    return BigNumber.from(deadline).lt(currentTimestamp)
+    return BigInt(deadline) < BigInt(currentTimestamp)
   }
 
   /**
@@ -74,7 +72,7 @@ export class SignatureProvider {
    * @param wordPos The word position in the bitmap
    * @returns The bitmap as a BigNumber
    */
-  async getNonceBitmap(owner: string, wordPos: BigNumberish): Promise<BigNumber> {
+  async getNonceBitmap(owner: string, wordPos: BigNumberish): Promise<BigNumberish> {
     return await this.permit2.nonceBitmap(owner, wordPos)
   }
 
@@ -84,10 +82,10 @@ export class SignatureProvider {
    * @param bitPos The bit position (0-255)
    * @returns true if the bit is set, false otherwise
    */
-  static isBitSet(bitmap: BigNumber, bitPos: number): boolean {
+  static isBitSet(bitmap: BigNumberish, bitPos: number): boolean {
     invariant(bitPos >= 0 && bitPos <= 255, 'BIT_POSITION_OUT_OF_RANGE')
-    const mask = BigNumber.from(1).shl(bitPos)
-    return bitmap.and(mask).gt(0)
+    const mask = 1n << BigInt(bitPos)
+    return (BigInt(bitmap) & mask) > BigInt(0)
   }
 
   /**
@@ -95,11 +93,11 @@ export class SignatureProvider {
    * @param nonce The nonce to analyze
    * @returns Object containing wordPos and bitPos
    */
-  static getNoncePositions(nonce: BigNumberish): { wordPos: BigNumber; bitPos: number } {
-    const nonceBN = BigNumber.from(nonce)
+  static getNoncePositions(nonce: BigNumberish): { wordPos: BigNumberish; bitPos: number } {
+    const nonceBN = BigInt(nonce)
     return {
-      wordPos: nonceBN.shr(8),
-      bitPos: nonceBN.and(255).toNumber(),
+      wordPos: nonceBN >> 8n,
+      bitPos: Number(nonceBN & 255n),
     }
   }
 
@@ -120,7 +118,7 @@ export class SignatureProvider {
 
     // Fetch all required bitmaps
     const bitmapPromises = Array.from(wordPositions).map(async (wordPosKey) => {
-      const wordPos = BigNumber.from(wordPosKey)
+      const wordPos = BigInt(wordPosKey)
       const bitmap = await this.getNonceBitmap(owner, wordPos)
       return { wordPos, bitmap }
     })
@@ -131,10 +129,7 @@ export class SignatureProvider {
     // Check each nonce
     return nonces.map((nonce) => {
       const { wordPos, bitPos } = SignatureProvider.getNoncePositions(nonce)
-      const bitmap = bitmapMap.get(wordPos.toString())
-      if (!bitmap) {
-        throw new Error(`Bitmap not found for word position ${wordPos.toString()}`)
-      }
+      const bitmap = bitmapMap.get(wordPos.toString()) || 0n
       return SignatureProvider.isBitSet(bitmap, bitPos)
     })
   }
@@ -145,6 +140,6 @@ export class SignatureProvider {
    */
   async getCurrentTimestamp(): Promise<number> {
     const currentBlock = await this.provider.getBlock('latest')
-    return currentBlock.timestamp
+    return currentBlock!.timestamp
   }
 }

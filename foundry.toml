@@ -2,3 +2,4 @@
 solc = "0.8.17"
 fs_permissions = [{ access = "read", path = "./permit2/out/Permit2.sol/Permit2.json"}, { access = "read", path = "./test/interop.json"}]
 via_ir = true
+libs = ["node_modules", "lib"]

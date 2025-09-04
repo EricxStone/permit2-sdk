@@ -1,10 +1,9 @@
 import { SignatureProvider } from './SignatureProvider'
 import { PermitTransferFrom, PermitBatchTransferFrom } from '../signatureTransfer'
-import { BigNumber } from '@ethersproject/bignumber'
 import { ethers } from 'ethers'
 
 describe('SignatureProvider', () => {
-  let provider: ethers.providers.JsonRpcProvider
+  let provider: ethers.JsonRpcProvider
   let permit2Address: string
   let owner: string
   let spender: string
@@ -14,7 +13,7 @@ describe('SignatureProvider', () => {
   beforeEach(() => {
     // Setup test environment
     const forkUrl = process.env.FORK_URL || 'http://localhost:8545'
-    provider = new ethers.providers.JsonRpcProvider(forkUrl)
+    provider = new ethers.JsonRpcProvider(forkUrl)
     permit2Address = '0x000000000022D473030F116dDEE9F6B43aC78BA3' // Mainnet Permit2 address
     owner = '0x1234567890123456789012345678901234567890'
     spender = '0x0987654321098765432109876543210987654321'
@@ -24,7 +23,7 @@ describe('SignatureProvider', () => {
 
   describe('isNonceUsed', () => {
     it('should check if a nonce has been used', async () => {
-      const nonce = BigNumber.from(123)
+      const nonce = 123n
 
       const isUsed = await signatureProvider.isNonceUsed(owner, nonce)
       expect(typeof isUsed).toBe('boolean')
@@ -40,7 +39,7 @@ describe('SignatureProvider', () => {
     })
 
     it('should check specific used nonce for known swapper', async () => {
-      const usedNonce = BigNumber.from('1993349591429988950323706171037443285812821323100932422320925456272859199745')
+      const usedNonce = BigInt('1993349591429988950323706171037443285812821323100932422320925456272859199745')
       const swapper = '0xa7152Fad7467857dC2D4060FEcaAdf9f6B8227d3'
 
       const isUsed = await signatureProvider.isNonceUsed(swapper, usedNonce)
@@ -48,7 +47,7 @@ describe('SignatureProvider', () => {
     })
 
     it('should check specific unused nonce for known swapper', async () => {
-      const unusedNonce = BigNumber.from('1234567890')
+      const unusedNonce = BigInt('1234567890')
       const swapper = '0x54539967a06Fc0E3C3ED0ee320Eb67362D13C5fF'
 
       const isUsed = await signatureProvider.isNonceUsed(swapper, unusedNonce)
@@ -58,8 +57,8 @@ describe('SignatureProvider', () => {
 
   describe('isExpired', () => {
     it('should check if a deadline has expired', async () => {
-      const futureDeadline = BigNumber.from(Math.floor(Date.now() / 1000) + 3600) // 1 hour from now
-      const pastDeadline = BigNumber.from(Math.floor(Date.now() / 1000) - 3600) // 1 hour ago
+      const futureDeadline = BigInt(Math.floor(Date.now() / 1000) + 3600) // 1 hour from now
+      const pastDeadline = BigInt(Math.floor(Date.now() / 1000) - 3600) // 1 hour ago
 
       const futureExpired = await signatureProvider.isExpired(futureDeadline)
       const pastExpired = await signatureProvider.isExpired(pastDeadline)
@@ -76,11 +75,11 @@ describe('SignatureProvider', () => {
       const permit: PermitTransferFrom = {
         permitted: {
           token,
-          amount: BigNumber.from(1000000),
+          amount: 1000000n,
         },
         spender,
-        nonce: BigNumber.from(123),
-        deadline: BigNumber.from(Math.floor(Date.now() / 1000) + 3600), // 1 hour from now
+        nonce: 123n,
+        deadline: BigInt(Math.floor(Date.now() / 1000) + 3600), // 1 hour from now
       }
 
       const isValid = await signatureProvider.isPermitValid(permit)
@@ -92,16 +91,16 @@ describe('SignatureProvider', () => {
         permitted: [
           {
             token,
-            amount: BigNumber.from(1000000),
+            amount: 1000000n,
           },
           {
             token: '0xB0b86a33E6441b8C4C8C8C8C8C8C8C8C8C8C8C8C',
-            amount: BigNumber.from(2000000),
+            amount: 2000000n,
           },
         ],
         spender,
-        nonce: BigNumber.from(456),
-        deadline: BigNumber.from(Math.floor(Date.now() / 1000) + 3600), // 1 hour from now
+        nonce: 456n,
+        deadline: BigInt(Math.floor(Date.now() / 1000) + 3600), // 1 hour from now
       }
 
       const isValid = await signatureProvider.isPermitValid(permit)
@@ -112,11 +111,11 @@ describe('SignatureProvider', () => {
       const permit: PermitTransferFrom = {
         permitted: {
           token,
-          amount: BigNumber.from(1000000),
+          amount: 1000000n,
         },
         spender,
-        nonce: BigNumber.from(123),
-        deadline: BigNumber.from(Math.floor(Date.now() / 1000) - 3600), // 1 hour ago
+        nonce: 123n,
+        deadline: BigInt(Math.floor(Date.now() / 1000) - 3600), // 1 hour ago
       }
 
       const isValid = await signatureProvider.isPermitValid(permit)
@@ -129,11 +128,11 @@ describe('SignatureProvider', () => {
       const permit: PermitTransferFrom = {
         permitted: {
           token,
-          amount: BigNumber.from(1000000),
+          amount: 1000000n,
         },
         spender,
-        nonce: BigNumber.from(123),
-        deadline: BigNumber.from(Math.floor(Date.now() / 1000) + 3600), // 1 hour from now
+        nonce: 123n,
+        deadline: BigInt(Math.floor(Date.now() / 1000) + 3600), // 1 hour from now
       }
 
       const result = await signatureProvider.validatePermit(permit)
@@ -149,16 +148,16 @@ describe('SignatureProvider', () => {
 
   describe('getNonceBitmap', () => {
     it('should get the nonce bitmap for an owner', async () => {
-      const wordPos = BigNumber.from(0)
+      const wordPos = 0n
 
       const bitmap = await signatureProvider.getNonceBitmap(owner, wordPos)
-      expect(bitmap).toBeInstanceOf(BigNumber)
+      expect(typeof bitmap).toBe('bigint')
     })
   })
 
   describe('isBitSet', () => {
     it('should check if a specific bit is set in a bitmap', () => {
-      const bitmap = BigNumber.from('0x0000000000000000000000000000000000000000000000000000000000000001')
+      const bitmap = BigInt('0x0000000000000000000000000000000000000000000000000000000000000001')
 
       const bit0Set = SignatureProvider.isBitSet(bitmap, 0)
       const bit1Set = SignatureProvider.isBitSet(bitmap, 1)
@@ -168,7 +167,7 @@ describe('SignatureProvider', () => {
     })
 
     it('should handle different bit positions', () => {
-      const bitmap = BigNumber.from('0x00000000000000000000000000000000000000000000000000000000000000FF')
+      const bitmap = BigInt('0x00000000000000000000000000000000000000000000000000000000000000FF')
 
       for (let i = 0; i < 8; i++) {
         const isSet = SignatureProvider.isBitSet(bitmap, i)
@@ -182,7 +181,7 @@ describe('SignatureProvider', () => {
     })
 
     it('should throw error for invalid bit positions', () => {
-      const bitmap = BigNumber.from(0)
+      const bitmap = 0n
 
       expect(() => SignatureProvider.isBitSet(bitmap, -1)).toThrow('BIT_POSITION_OUT_OF_RANGE')
       expect(() => SignatureProvider.isBitSet(bitmap, 256)).toThrow('BIT_POSITION_OUT_OF_RANGE')
@@ -191,25 +190,25 @@ describe('SignatureProvider', () => {
 
   describe('getNoncePositions', () => {
     it('should calculate correct word and bit positions', () => {
-      const nonce = BigNumber.from(123)
+      const nonce = 123n
       const positions = SignatureProvider.getNoncePositions(nonce)
 
-      expect(positions.wordPos.eq(BigNumber.from(0))).toBe(true) // 123 >> 8 = 0
+      expect(BigInt(positions.wordPos) == (0n)).toBe(true) // 123 >> 8 = 0
       expect(positions.bitPos).toBe(123) // 123 & 255 = 123
     })
 
     it('should handle nonces that span multiple words', () => {
-      const nonce = BigNumber.from(300)
+      const nonce = 300n
       const positions = SignatureProvider.getNoncePositions(nonce)
 
-      expect(positions.wordPos.eq(BigNumber.from(1))).toBe(true) // 300 >> 8 = 1
+      expect(BigInt(positions.wordPos) == 1n).toBe(true) // 300 >> 8 = 1
       expect(positions.bitPos).toBe(44) // 300 & 255 = 44
     })
   })
 
   describe('batchCheckNonces', () => {
     it('should check multiple nonces efficiently', async () => {
-      const nonces = [BigNumber.from(1), BigNumber.from(2), BigNumber.from(256), BigNumber.from(257)]
+      const nonces = [1n, 2n, 256n, 257n]
 
       const results = await signatureProvider.batchCheckNonces(owner, nonces)
 
@@ -221,13 +220,13 @@ describe('SignatureProvider', () => {
 
     it('should check specific nonces for known swapper', async () => {
       const swapper = '0xa7152Fad7467857dC2D4060FEcaAdf9f6B8227d3'
-      const usedNonce = BigNumber.from('1993349591429988950323706171037443285812821323100932422320925456272859199745')
+      const usedNonce = BigInt('1993349591429988950323706171037443285812821323100932422320925456272859199745')
 
       // Test with the specific nonce and some additional nonces
       const nonces = [
         usedNonce,
-        BigNumber.from(1234567890), // Different nonce
-        BigNumber.from(9876543210), // Another different nonce
+        1234567890n, // Different nonce
+        9876543210n, // Another different nonce
       ]
 
       const results = await signatureProvider.batchCheckNonces(swapper, nonces)
@@ -258,14 +257,14 @@ describe('SignatureProvider', () => {
 
   describe('Integration Tests', () => {
     it('should work together to validate a complete permit flow', async () => {
-      const nonce = BigNumber.from(789)
-      const deadline = BigNumber.from(Math.floor(Date.now() / 1000) + 7200) // 2 hours from now
+      const nonce = 789n
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 7200) // 2 hours from now
 
       // Create permit
       const permit: PermitTransferFrom = {
         permitted: {
           token,
-          amount: BigNumber.from(1000000),
+          amount: 1000000n,
         },
         spender,
         nonce,
@@ -286,7 +285,7 @@ describe('SignatureProvider', () => {
     })
 
     it('should provide consistent results between individual and batch validation', async () => {
-      const nonces = [BigNumber.from(1), BigNumber.from(2), BigNumber.from(256)]
+      const nonces = [1n, 2n, 256n]
 
       // Check individual nonces
       const individualResults = await Promise.all(nonces.map((nonce) => signatureProvider.isNonceUsed(owner, nonce)))

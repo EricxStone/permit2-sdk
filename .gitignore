@@ -5,3 +5,6 @@ cache
 
 #dependencies
 node_modules
+
+.env
+yarn.lock

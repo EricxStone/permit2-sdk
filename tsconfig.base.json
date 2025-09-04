@@ -3,7 +3,7 @@
     "compilerOptions": {
       "rootDir": ".",
       "baseUrl": ".",
-      "target": "es6",
+      "target": "es2020",
       "module": "esnext",
       "importHelpers": true,
       "declaration": true,
@@ -15,4 +15,4 @@
       "skipLibCheck": true,
       "isolatedModules": true
     }
-  } 
+  }
