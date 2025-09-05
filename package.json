@@ -1,6 +1,6 @@
 {
   "name": "@ericxstone/permit2-sdk",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A permit2 SDK fork from Uniswap and get it on Ethers v6",
   "repository": "https://github.com/EricxStone/permit2-sdk",
   "keywords": [
