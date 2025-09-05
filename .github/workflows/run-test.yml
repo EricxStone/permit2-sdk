@@ -25,6 +25,9 @@ jobs:
         run: |
           yarn test:cicd
 
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
       - name: Run forge test
         run: |
           yarn build
