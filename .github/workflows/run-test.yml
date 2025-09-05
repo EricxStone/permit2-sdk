@@ -1,0 +1,34 @@
+name: Test CI
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone source code
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: |
+          yarn install
+
+      - name: Run unit test
+        with:
+          FORK_URL: ${{ secrets.FORK_URL }}
+        run: |
+          yarn test:cicd
+
+      - name: Run forge test
+        run: |
+          yarn build
+          yarn interop
+          (cd permit2 && forge build)
+          forge test
+        
