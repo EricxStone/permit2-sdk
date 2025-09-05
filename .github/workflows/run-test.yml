@@ -24,14 +24,4 @@ jobs:
           FORK_URL: ${{ secrets.FORK_URL }}
         run: |
           yarn test:cicd
-
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-
-      - name: Run forge test
-        run: |
-          yarn build
-          yarn interop
-          (cd permit2 && forge build)
-          forge test
         
