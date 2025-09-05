@@ -1,0 +1,31 @@
+name: Deploy Package
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone Source Code
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: |
+          yarn && yarn add -D npm-cli-login
+      - name: Run Test
+        env:
+          FORK_URL: ${{ secrets.FORK_URL }}
+        run: |
+          yarn test:cicd
+      - name: Build Package
+        run: |
+          yarn build
+      - name: Publish Package
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          access: public
