@@ -20,7 +20,7 @@ jobs:
           yarn install
 
       - name: Run unit test
-        with:
+        env:
           FORK_URL: ${{ secrets.FORK_URL }}
         run: |
           yarn test:cicd
